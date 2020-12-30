@@ -2,6 +2,7 @@
 pragma solidity >=0.6.0 <0.7.0;
 
 import "./interfaces/IIntercoin.sol";
+import "./interfaces/IIntercoinTrait.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/access/Ownable.sol";
 
 contract Factory is OwnableUpgradeSafe {
@@ -13,12 +14,15 @@ contract Factory is OwnableUpgradeSafe {
         contractInstance = _contractInstance;
     }
     
-    function produce() public returns(address) {
+    function produce() public payable returns(address) {
         
         address proxy = createClone(address(contractInstance));
         
         bool success =  IIntercoin(owner()).registerInstance(proxy);
-        require(success == true, 'Can not register intstance');
+        require(success == true, 'Can not register instance');
+        
+        bool success2 = IIntercoinTrait(proxy).setIntercoinAddress(owner());
+        require(success2 == true, 'Can not setup intercoin address');
         
         emit Produced(msg.sender, proxy);
         return proxy;

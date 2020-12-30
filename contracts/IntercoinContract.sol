@@ -1,15 +1,26 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.6.0 <0.7.0;
+pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts-ethereum-package/contracts/access/Ownable.sol";
-// import "../Contest.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
 
 import "./Factory.sol";
 import "./interfaces/IIntercoin.sol";
 
 contract InterCoinContract is IIntercoin, OwnableUpgradeSafe {
+    using SafeMath for uint256;
+    
     mapping (address => bool) factories;
     mapping (address => bool) instances;
+    
+    FactoriesMetaData[] internal factoriesMetaData;
+    
+    struct FactoriesMetaData {
+        Factory addr;
+        string version;
+        string name;
+    }
     
     Factory factoryAddr;
     event ProducedFactory(Factory addr);
@@ -24,7 +35,7 @@ contract InterCoinContract is IIntercoin, OwnableUpgradeSafe {
         factoryAddr = new Factory();
     }
     
-    function produceFactory(address contractInstance) public onlyOwner returns(address factoryInstance) {
+    function produceFactory(address contractInstance, string memory version, string memory name) public onlyOwner returns(address factoryInstance) {
         
         Factory proxy = Factory(createClone(address(factoryAddr)));
         
@@ -34,9 +45,8 @@ contract InterCoinContract is IIntercoin, OwnableUpgradeSafe {
         
         emit ProducedFactory(proxy);
         factories[address(proxy)] = true;
-        
-        //bool success =  IIntercoin(owner()).registerInstance(address(proxy));
-        //require(success == true, 'Can not register intstance');
+        FactoriesMetaData memory tmp = FactoriesMetaData(proxy,version,name);
+        factoriesMetaData.push(tmp);
         
         return address(proxy);
         
@@ -44,6 +54,10 @@ contract InterCoinContract is IIntercoin, OwnableUpgradeSafe {
     
     function checkInstance(address addr) public override view returns(bool) {
         return instances[addr];
+    }
+    
+    function viewFactoryInstances() public view returns(FactoriesMetaData[] memory) {
+        return factoriesMetaData;
     }
 
     function registerInstance(address addr) external onlyFactory() override returns(bool) {

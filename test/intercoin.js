@@ -30,9 +30,11 @@ contract('IntercoinContract', (accounts) => {
     const accountTwelwe = accounts[11];
     
     const zeroAddr = '0x0000000000000000000000000000000000000000';
+    const version = '0.1';
+    const name = 'SomeContractName';
 
     
-    it('should create IntercointContract', async () => {
+    it('should create IntercoinContract', async () => {
         var IntercoinContractInstance = await IntercoinContract.new({from: accountTen});
         await IntercoinContractInstance.init({from: accountTen});
     });
@@ -43,7 +45,7 @@ contract('IntercoinContract', (accounts) => {
         var IntercoinContractInstance = await IntercoinContract.new({from: accountTen});
         await IntercoinContractInstance.init({from: accountTen});
         
-        await IntercoinContractInstance.produceFactory(SimpleContractInstance.address, {from: accountTen});
+        await IntercoinContractInstance.produceFactory(SimpleContractInstance.address, version, name, {from: accountTen});
         
         var FactoryInstanceAddress;
         var FactoryInstance;
@@ -63,13 +65,13 @@ contract('IntercoinContract', (accounts) => {
         
     });
     
-    it('checks onlyOwner methods at IntercointContract/Factory', async () => {
+    it('checks onlyOwner methods at IntercoinContract/Factory', async () => {
         var SimpleContractInstance = await SimpleContract.new({from: accountTen});
         
         var IntercoinContractInstance = await IntercoinContract.new({from: accountTen});
         await IntercoinContractInstance.init({from: accountTen});
         
-        await IntercoinContractInstance.produceFactory(SimpleContractInstance.address, {from: accountTen});
+        await IntercoinContractInstance.produceFactory(SimpleContractInstance.address, version, name, {from: accountTen});
         
         var FactoryInstanceAddress;
         var FactoryInstance;
@@ -87,7 +89,7 @@ contract('IntercoinContract', (accounts) => {
         
         
         await truffleAssert.reverts(
-            IntercoinContractInstance.produceFactory(SimpleContractInstance.address, { from: accountTwo }), 
+            IntercoinContractInstance.produceFactory(SimpleContractInstance.address, version, name, { from: accountTwo }), 
             "Ownable: caller is not the owner."
         );
         
@@ -108,7 +110,7 @@ contract('IntercoinContract', (accounts) => {
             "Contract instance has already been initialized"
         );
         
-        await IntercoinContractInstance.produceFactory(SimpleContractInstance.address, {from: accountTen});
+        await IntercoinContractInstance.produceFactory(SimpleContractInstance.address, version, name, {from: accountTen});
         
         var FactoryInstanceAddress;
         var FactoryInstance;
@@ -161,7 +163,7 @@ contract('IntercoinContract', (accounts) => {
         var IntercoinContractInstance = await IntercoinContract.new({from: accountTen});
         await IntercoinContractInstance.init({from: accountTen});
         
-        await IntercoinContractInstance.produceFactory(SimpleContractInstance.address, {from: accountTen});
+        await IntercoinContractInstance.produceFactory(SimpleContractInstance.address, version, name, {from: accountTen});
         
         var FactoryInstanceAddress;
         var FactoryInstance;
@@ -208,7 +210,7 @@ contract('IntercoinContract', (accounts) => {
         var IntercoinContractInstance = await IntercoinContract.new({from: accountTen});
         await IntercoinContractInstance.init({from: accountTen});
         
-        await IntercoinContractInstance.produceFactory(SimpleContractInstance.address, {from: accountTen});
+        await IntercoinContractInstance.produceFactory(SimpleContractInstance.address, version, name, {from: accountTen});
         
         var FactoryInstanceAddress;
         var FactoryInstance;
@@ -248,6 +250,10 @@ contract('IntercoinContract', (accounts) => {
         
         var tmp1 = await IntercoinContractInstance.checkInstance(accountThree, {from: accountThree});
         assert.isFalse(tmp1, 'unexpected values true at IntercoinContract::checkInstance');
+        
+        var tmp2 = await contractInstance.getIntercoinAddress({from: accountThree});
+        assert.equal(IntercoinContractInstance.address, tmp2, 'intercoinAddress does not equal with value stored at contract instance')
+        
     });
     
     it('check workflow if clone-contract initialized before clone (i.e. changed own storage) ', async () => {
@@ -256,7 +262,7 @@ contract('IntercoinContract', (accounts) => {
         var IntercoinContractInstance = await IntercoinContract.new({from: accountTen});
         await IntercoinContractInstance.init({from: accountTen});
         
-        await IntercoinContractInstance.produceFactory(SimpleContractInstance.address, {from: accountTen});
+        await IntercoinContractInstance.produceFactory(SimpleContractInstance.address, version, name, {from: accountTen});
         
         var FactoryInstanceAddress;
         var FactoryInstance;
@@ -298,7 +304,7 @@ contract('IntercoinContract', (accounts) => {
         var IntercoinContractInstance2 = await IntercoinContract.new({from: accountTen});
         await IntercoinContractInstance2.init({from: accountTen});
         
-        await IntercoinContractInstance2.produceFactory(contractInstanceAddress, {from: accountTen});
+        await IntercoinContractInstance2.produceFactory(contractInstanceAddress, version, name, {from: accountTen});
         
         var FactoryInstanceAddress2;
         var FactoryInstance2;
@@ -336,6 +342,26 @@ contract('IntercoinContract', (accounts) => {
         var tmp = contractInstance.getVal({from: accountSix});
         
         assert.isTrue(tmp2!=tmp, 'storage copied !!');
+        
+        let tmp3 = await IntercoinContractInstance2.viewFactoryInstances();
+        
+        assert.equal(
+            tmp3[0].addr, 
+            FactoryInstance2.address, 
+            'method `viewFactoryInstances` return wrong information (`addr`)'
+        );
+        
+        assert.equal(
+            tmp3[0].version,
+            version,
+            'method `viewFactoryInstances` return wrong information (`version`)'
+        );
+        assert.equal(
+            tmp3[0].name,
+            name,
+            'method `viewFactoryInstances` return wrong information (`name`)'
+        );
+        
     });
     
 });

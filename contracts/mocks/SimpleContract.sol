@@ -4,7 +4,9 @@ pragma solidity >=0.6.0 <0.7.0;
 import "../interfaces/IIntercoin.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/access/Ownable.sol";
 
-contract SimpleContract is OwnableUpgradeSafe {
+import "../IntercoinTrait.sol";
+
+contract SimpleContract is OwnableUpgradeSafe, IntercoinTrait {
     
     uint256 private val;
     event ValueChanged(uint256 from, uint256 to);
