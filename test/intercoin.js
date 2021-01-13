@@ -298,6 +298,24 @@ contract('IntercoinContract', (accounts) => {
         await contractInstance.setVal(555, {from: accountFive});
         
         
+        //  verify contract created by our factory 
+        var varShouldBeTrue = await contractInstance.getSelfAddrRegisterAtIntercoin();
+        //console.log('varShouldBeTrue=', varShouldBeTrue);     
+        assert.isTrue(varShouldBeTrue, 'created contract was not registered at IntercoinContract');
+        
+        // even if we try to create contract and setup internal intercoin address var manually 
+        var regularSimpleContractInstance = await SimpleContract.new({from: accountTen});
+        await regularSimpleContractInstance.init({from: accountFive});
+        await truffleAssert.reverts(
+            regularSimpleContractInstance.getSelfAddrRegisterAtIntercoin(), 
+            "Intercoin address need to be setup before"
+        );
+        await regularSimpleContractInstance.setIntercoinAddress(IntercoinContractInstance.address, {from: accountFive});
+        var varShouldBeFalse = await regularSimpleContractInstance.getSelfAddrRegisterAtIntercoin({from: accountFive});
+        //console.log('varShouldBeFalse=', varShouldBeFalse);
+        assert.isFalse(varShouldBeFalse, 'created contract should not to be registered at IntercoinContract');
+        
+        
         // #################################################################
         // #############   make clone from clone ##########################
         // #################################################################
