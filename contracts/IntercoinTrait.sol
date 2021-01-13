@@ -2,17 +2,28 @@
 pragma solidity >=0.6.0 <0.7.0;
 
 import "./interfaces/IIntercoin.sol";
+import "./interfaces/IIntercoinTrait.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol";
 
-contract IntercoinTrait {
+
+contract IntercoinTrait is Initializable, IIntercoinTrait {
     
-    address private intercoinAddr = address(0);
-    bool private isSetup = false;
+    address private intercoinAddr;
+    bool private isSetup;
     
+    function __IntercoinTrait_init(
+    ) 
+        internal 
+        initializer 
+    {
+        intercoinAddr = address(0);
+        isSetup = false;
+    }
     /**
      * setup intercoin contract's address. happens once while initialization through factory
      * @param addr address of intercoin contract
      */
-    function setIntercoinAddress(address addr) public returns(bool) {
+    function setIntercoinAddress(address addr) public override returns(bool) {
         require (addr != address(0), 'Address can not be empty');
         require (isSetup == false, 'Already setup');
         intercoinAddr = addr;
@@ -24,7 +35,7 @@ contract IntercoinTrait {
     /**
      * got stored intercoin address
      */
-    function getIntercoinAddress() public view returns (address) {
+    function getIntercoinAddress() public override view returns (address) {
         return intercoinAddr;
     }
     
