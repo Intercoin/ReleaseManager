@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.6.0 <0.7.0;
 
-import "@openzeppelin/contracts-ethereum-package/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 import "../IntercoinTrait.sol";
 
-contract SimpleContract is OwnableUpgradeSafe, IntercoinTrait {
+contract SimpleContract is OwnableUpgradeable, IntercoinTrait {
     
     uint256 private val;
     event ValueChanged(uint256 from, uint256 to);
@@ -20,6 +20,9 @@ contract SimpleContract is OwnableUpgradeSafe, IntercoinTrait {
     
     function getVal() public view returns(uint256) {
         return val;
+    }
+    function getValMul2() public view returns(uint256) {
+        return val*2;
     }
     
     function getSelfAddrRegisterAtIntercoin() public view returns(bool) {

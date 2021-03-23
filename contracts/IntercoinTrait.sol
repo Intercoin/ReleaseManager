@@ -3,8 +3,7 @@ pragma solidity >=0.6.0 <0.7.0;
 
 import "./interfaces/IIntercoin.sol";
 import "./interfaces/IIntercoinTrait.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol";
-
+import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
 
 contract IntercoinTrait is Initializable, IIntercoinTrait {
     

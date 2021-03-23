@@ -3,9 +3,9 @@ pragma solidity >=0.6.0 <0.7.0;
 
 import "./interfaces/IIntercoin.sol";
 import "./interfaces/IIntercoinTrait.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-contract Factory is OwnableUpgradeSafe {
+contract Factory is OwnableUpgradeable {
     address contractInstance;
     event Produced(address caller, address addr);
   
@@ -17,6 +17,21 @@ contract Factory is OwnableUpgradeSafe {
     function produce() public payable returns(address) {
         
         address proxy = createClone(address(contractInstance));
+        
+        bool success =  IIntercoin(owner()).registerInstance(proxy);
+        require(success == true, 'Can not register instance');
+        
+        bool success2 = IIntercoinTrait(proxy).setIntercoinAddress(owner());
+        require(success2 == true, 'Can not setup intercoin address');
+        
+        emit Produced(msg.sender, proxy);
+        return proxy;
+    }
+    
+    
+    function produceSetupOnly(address proxy) external payable onlyOwner returns(address) {
+        //constructor(address _logic, address _admin, bytes memory _data) UpgradeabilityProxy(_logic, _data) public payable {
+        //address proxy = new AdminUpgradeabilityProxy(address(contractInstance), address(adminProxy), bytes(''));
         
         bool success =  IIntercoin(owner()).registerInstance(proxy);
         require(success == true, 'Can not register instance');

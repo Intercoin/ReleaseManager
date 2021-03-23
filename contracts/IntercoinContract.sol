@@ -2,14 +2,15 @@
 pragma solidity >=0.6.0 <0.7.0;
 pragma experimental ABIEncoderV2;
 
-import "@openzeppelin/contracts-ethereum-package/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
+
 
 import "./Factory.sol";
 import "./interfaces/IIntercoin.sol";
 
-contract InterCoinContract is IIntercoin, OwnableUpgradeSafe {
-    using SafeMath for uint256;
+contract InterCoinContract is IIntercoin, OwnableUpgradeable {
+    using SafeMathUpgradeable for uint256;
     
     mapping (address => bool) factories;
     mapping (address => bool) instances;
@@ -51,6 +52,10 @@ contract InterCoinContract is IIntercoin, OwnableUpgradeSafe {
         return address(proxy);
         
     }
+    
+    function produce2(address factoryInstance, address adminUpgradeabilityProxy) public onlyOwner {
+        Factory(factoryInstance).produceSetupOnly(adminUpgradeabilityProxy);
+    } 
     
     function checkInstance(address addr) public override view returns(bool) {
         return instances[addr];

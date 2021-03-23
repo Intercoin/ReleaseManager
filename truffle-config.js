@@ -25,8 +25,8 @@
 // const mnemonic = fs.readFileSync(".secret").toString().trim();
 
 const HDWalletProvider = require("@truffle/hdwallet-provider");
-require('dotenv').config();
-console.log(process.env.MNEMONIC);
+//require('dotenv').config();
+//console.log(process.env.MNEMONIC);
 module.exports = {
     
   /**

@@ -107,7 +107,8 @@ contract('IntercoinContract', (accounts) => {
         
         await truffleAssert.reverts(
             IntercoinContractInstance.init({ from: accountTen }), 
-            "Contract instance has already been initialized"
+            //"Contract instance has already been initialized"
+            "Initializable: contract is already initialized"
         );
         
         await IntercoinContractInstance.produceFactory(SimpleContractInstance.address, version, name, {from: accountTen});
@@ -128,7 +129,8 @@ contract('IntercoinContract', (accounts) => {
         
         await truffleAssert.reverts(
             FactoryInstance.init(FactoryInstanceAddress, { from: accountTen }), 
-            "Contract instance has already been initialized"
+            //"Contract instance has already been initialized"
+            "Initializable: contract is already initialized"
         );
         
         var contractInstanceAddress;
@@ -152,7 +154,8 @@ contract('IntercoinContract', (accounts) => {
         
         await truffleAssert.reverts(
             contractInstance.init({ from: accountFive }), 
-            "Contract instance has already been initialized"
+            //"Contract instance has already been initialized"
+            "Initializable: contract is already initialized"
         );
 
     });
