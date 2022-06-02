@@ -3,9 +3,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-import "../IntercoinTrait.sol";
-
-contract SimpleContract is OwnableUpgradeable, IntercoinTrait {
+contract MockSimpleContractBad is OwnableUpgradeable {
     
     uint256 private val;
     event ValueChanged(uint256 from, uint256 to);
@@ -25,7 +23,4 @@ contract SimpleContract is OwnableUpgradeable, IntercoinTrait {
         return val*2;
     }
     
-    function getSelfAddrRegisterAtIntercoin() public view returns(bool) {
-        return checkInstance(address(this));
-    }
 }
