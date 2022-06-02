@@ -4,7 +4,7 @@ pragma experimental ABIEncoderV2;
 
 interface IIntercoin {
     
-    function registerInstance(address addr) external returns(bool);
+    function registerInstance(address addr) external;
     function checkInstance(address addr) external view returns(bool);
     
 }

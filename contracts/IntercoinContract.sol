@@ -2,91 +2,104 @@
 pragma solidity ^0.8.0;
 pragma experimental ABIEncoderV2;
 
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
-
-import "./Factory.sol";
 import "./interfaces/IIntercoin.sol";
+import "./interfaces/IIntercoinTrait.sol";
 
-contract IntercoinContract is IIntercoin, OwnableUpgradeable {
-    using SafeMathUpgradeable for uint256;
-    
-    mapping (address => bool) factories;
-    mapping (address => bool) instances;
-    
-    FactoriesMetaData[] internal factoriesMetaData;
+
+contract IntercoinContract is IIntercoin, Ownable, IERC165 {
+    using Counters for Counters.Counter;
     
     struct FactoriesMetaData {
-        Factory addr;
         string version;
         string name;
+        bool exists;
+    }
+
+    struct InstancesMetaData {
+        bool exists;
     }
     
-    Factory factoryAddr;
-    event ProducedFactory(Factory addr);
+    Counters.Counter factoriesCounter;
+    Counters.Counter instancesCounter;
+    mapping (address => uint256) factoriesIds;
+    mapping (address => uint256) instancesIds;
+    
+    mapping (uint256 => FactoriesMetaData) factories;
+    mapping (uint256 => InstancesMetaData) instances;
+
+    FactoriesMetaData[] internal factoriesMetaData;
+    
+    event RegisteredFactory(address factory);
+    event RegisteredInstance(address instance);
     
     modifier onlyFactory() {
-        require(factories[_msgSender()] == true, "Intercoin: caller is not the factory");
+        require(factoriesIds[_msgSender()] != 0, "Intercoin: caller is not the factory");
         _;
     }
+
     
-    function init() public initializer  {
-        __Ownable_init();
-        factoryAddr = new Factory();
+    function registerFactory(
+        address factoryAddress, 
+        string memory version, 
+        string memory name
+    ) 
+        public 
+        onlyOwner 
+    {
+
+        factoriesCounter.increment();
+        
+        factoriesIds[factoryAddress] = factoriesCounter.current();
+
+        FactoriesMetaData memory tmp = FactoriesMetaData(version, name, true);
+        factories[factoriesCounter.current()] = tmp;
+
+        IIntercoinTrait(factoryAddress).setIntercoinAddress(address(this));
+
+        emit RegisteredFactory(factoryAddress);
+
+        
     }
-    
-    function produceFactory(address contractInstance, string memory version, string memory name) public onlyOwner returns(address factoryInstance) {
-        
-        Factory proxy = Factory(createClone(address(factoryAddr)));
-        
-        proxy.init(contractInstance);
-        
-        // proxy.transferOwnership(address(this));
-        
-        emit ProducedFactory(proxy);
-        factories[address(proxy)] = true;
-        FactoriesMetaData memory tmp = FactoriesMetaData(proxy,version,name);
-        factoriesMetaData.push(tmp);
-        
-        return address(proxy);
-        
-    }
-    
-    function produce2(address factoryInstance, address adminUpgradeabilityProxy) public onlyOwner {
-        Factory(factoryInstance).produceSetupOnly(adminUpgradeabilityProxy);
-    } 
     
     function checkInstance(address addr) public override view returns(bool) {
-        return instances[addr];
+        return (instancesIds[addr] != 0);
     }
     
     function viewFactoryInstances() public view returns(FactoriesMetaData[] memory) {
-        return factoriesMetaData;
+        FactoriesMetaData[] memory ret = new FactoriesMetaData[](factoriesCounter.current());
+        for (uint256 i = 1; i<= factoriesCounter.current(); i++) {
+            ret[i-1] = FactoriesMetaData(
+                factories[i].version, 
+                factories[i].name, 
+                factories[i].exists
+            );
+        }
+        return ret;
     }
 
-    function registerInstance(address addr) external onlyFactory() override returns(bool) {
-        instances[addr] = true;
-        return true;
+    function registerInstance(address instance) external onlyFactory() {
+        
+        require(instancesIds[instance] == 0, "Intercoin: instance already registered");
+        instancesCounter.increment();
+        
+        instancesIds[instance] = instancesCounter.current();
+
+        InstancesMetaData memory tmp = InstancesMetaData(true);
+        instances[instancesCounter.current()] = tmp;
+
+        emit RegisteredInstance(instance);
+        
     }
-    
-    function registerFactoryInstance(address addr) internal returns(bool) {
-        factories[addr] = true;
-        return true;
+
+    function supportsInterface(bytes4 interfaceID) external pure returns (bool) {
+        return
+          interfaceID == this.supportsInterface.selector || // ERC165
+          interfaceID == type(IIntercoin).interfaceId
+          ;
     }
-    
-    function createClone(address target) internal returns (address result) {
-        bytes20 targetBytes = bytes20(target);
-        assembly {
-            let clone := mload(0x40)
-            mstore(clone, 0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000000000000000000000)
-            mstore(add(clone, 0x14), targetBytes)
-            mstore(add(clone, 0x28), 0x5af43d82803e903d91602b57fd5bf30000000000000000000000000000000000)
-            result := create(0, clone, 0x37)
-        }
-    }
-    
-   
-    
     
 }
