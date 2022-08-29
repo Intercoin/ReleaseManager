@@ -1,6 +1,6 @@
 {
-  "name": "itr",
-  "version": "1.0.0",
+  "name": "releasemanager",
+  "version": "1.0.1",
   "description": "Smart contracts and code relating to the Intercoin ITR Token",
   "main": "index.js",
   "scripts": {
@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Intercoin/ITR.git"
+    "url": "git+https://github.com/Intercoin/ReleaseManager.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Intercoin/ITR/issues"
+    "url": "https://github.com/Intercoin/ReleaseManager/issues"
   },
-  "homepage": "https://github.com/Intercoin/ITR#readme",
+  "homepage": "https://github.com/Intercoin/ReleaseManager#readme",
   "dependencies": {
     "@openzeppelin/contracts": "^4.6.0",
     "@openzeppelin/contracts-upgradeable": "^4.6.0",
