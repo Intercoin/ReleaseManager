@@ -1,6 +1,6 @@
 {
   "name": "releasemanager",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Smart contracts and code relating to the Intercoin ITR Token",
   "main": "index.js",
   "scripts": {
@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/Intercoin/ReleaseManager#readme",
   "dependencies": {
+    "trustedforwarder": "^1.0.0",
     "@openzeppelin/contracts": "^4.6.0",
     "@openzeppelin/contracts-upgradeable": "^4.6.0",
     "@openzeppelin/test-helpers": "^0.5.15",
