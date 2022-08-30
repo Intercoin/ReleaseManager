@@ -1,6 +1,6 @@
 {
   "name": "releasemanager",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Smart contracts and code relating to the Intercoin ITR Token",
   "main": "index.js",
   "scripts": {

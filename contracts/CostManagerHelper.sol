@@ -31,7 +31,8 @@ abstract contract CostManagerHelper is Initializable {
             ,
             "cannot override"
         );
-        costManager = costManager_;
+        
+        _setCostManager(costManager_);
     }
 
     function __CostManagerHelper_init(address factory_) internal onlyInitializing
@@ -60,6 +61,9 @@ abstract contract CostManagerHelper is Initializable {
             }
         }
     }
-
+    
+    function _setCostManager(address costManager_) internal {
+        costManager = costManager_;
+    }
     
 }
