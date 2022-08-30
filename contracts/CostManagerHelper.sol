@@ -16,8 +16,8 @@ abstract contract CostManagerHelper is Initializable {
     address internal factory;
 
     /** 
-    * @dev sets the utility token
-    * @param costManager_ new address of utility token, or 0
+    * @dev sets the costmanager token
+    * @param costManager_ new address of costmanager token, or 0
     */
     function overrideCostManager(address costManager_) external {
         // require factory owner or operator
@@ -40,8 +40,8 @@ abstract contract CostManagerHelper is Initializable {
     }
 
      /**
-     * @dev Private function that tells utility token contract to account for an operation
-     * @param info uint256 The operation ID (first 8 bits), seriesId is last 8 bits
+     * @dev Private function that tells contract to account for an operation
+     * @param info uint256 The operation ID (first 8 bits). in other bits any else info
      * @param param1 uint256 Some more information, if any
      * @param param2 uint256 Some more information, if any
      */
@@ -56,7 +56,7 @@ abstract contract CostManagerHelper is Initializable {
                 // This is executed in case revert() was called with a reason
                 revert(reason);
             } catch {
-                revert("Insufficient Utility Token: Contact Owner");
+                revert("unknown error");
             }
         }
     }

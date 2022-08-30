@@ -46,6 +46,7 @@ abstract contract CostManagerFactoryHelper is ICostManagerFactoryHelper, Ownable
     ) 
         external 
         virtual 
+        override
         view
         returns (bool) 
     {
