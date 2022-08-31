@@ -1,0 +1,13 @@
+{
+  "hardhat": {
+    "time_created": 1661973710300,
+    "implementationReleaseManager": "0x36b58F5C1969B7b6591D752ea6F5486D069010AB",
+    "time_updated": 1661973712827
+  },
+  "time_updated": 1661974333175,
+  "matic": {
+    "time_created": 1661974330458,
+    "implementationReleaseManager": "0xF98285483FCEF523473525A9164621b4A8b39b8f",
+    "time_updated": 1661974333175
+  }
+}
