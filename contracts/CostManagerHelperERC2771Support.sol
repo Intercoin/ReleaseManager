@@ -5,7 +5,7 @@ import "./interfaces/ICostManager.sol";
 import "./interfaces/ICostManagerFactoryHelper.sol";
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 
-import "trustedforwarder/contracts/TrustedForwarder.sol";
+import "@artman325/trustedforwarder/contracts/TrustedForwarder.sol";
 
 /**
 * used for instances that have created(cloned) by factory.
