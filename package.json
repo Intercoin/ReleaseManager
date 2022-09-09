@@ -1,5 +1,5 @@
 {
-  "name": "releasemanager",
+  "name": "@artman325/releasemanager",
   "files": [
     "/contracts/**/*.sol",
     "/build/contracts/*.json",
@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/Intercoin/ReleaseManager#readme",
   "dependencies": {
-    "trustedforwarder": "^1.0.0",
+    "@artman325/trustedforwarder": "^1.0.1",
     "@openzeppelin/contracts": "^4.6.0",
     "@openzeppelin/contracts-upgradeable": "^4.6.0",
     "@openzeppelin/test-helpers": "^0.5.15",
