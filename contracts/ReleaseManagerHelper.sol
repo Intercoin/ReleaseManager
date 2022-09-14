@@ -10,14 +10,25 @@ contract ReleaseManagerHelper is Ownable{
     using Address for address;
     address public releaseManager;
 
+    error RegisterReleaseManagerFirst();
+    error ReleaseManagerIsNoneContract(address addr);
+    error ReleaseManagerAlreadySetup(address addr);
+    
     function registerInstance(address stateContractAddress) internal {
-        require(releaseManager != address(0), "register releaseManager first");
+        if (releaseManager == address(0)) {
+            revert RegisterReleaseManagerFirst();
+        }
         IReleaseManager(releaseManager).registerInstance(stateContractAddress);
     }
     
     function registerReleaseManager(address releaseManager_) public onlyOwner {
-        require(releaseManager_.isContract(), "non-contract");
-        require(releaseManager == address(0), "already setup");
+        if (releaseManager_.isContract() == false) {
+            revert ReleaseManagerIsNoneContract(releaseManager_);
+        }
+        if (releaseManager != address(0)) {
+            revert ReleaseManagerAlreadySetup(releaseManager_);
+        }
+
         releaseManager = releaseManager_;
     }
 

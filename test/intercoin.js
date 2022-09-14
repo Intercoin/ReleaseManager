@@ -30,132 +30,132 @@ const version = '0.1';
 const name = 'SomeContractName';
 
 describe("ContestETHOnly", function () {
-    const accounts = waffle.provider.getWallets();
+//     const accounts = waffle.provider.getWallets();
     
-    // Setup accounts.
-    const owner = accounts[0];                     
-    const accountOne = accounts[1];  
-    const accountTwo = accounts[2];
-    const accountThree= accounts[3];
-    const accountFourth = accounts[4];
-    const accountFive = accounts[5];
-    const accountSix = accounts[6];
-    const accountSeven = accounts[7];
-    const accountEight = accounts[8];
-    const accountNine = accounts[9];
-    const accountTen = accounts[10];
-    const accountEleven = accounts[11];
-    const accountTwelwe = accounts[12];
+//     // Setup accounts.
+//     const owner = accounts[0];                     
+//     const accountOne = accounts[1];  
+//     const accountTwo = accounts[2];
+//     const accountThree= accounts[3];
+//     const accountFourth = accounts[4];
+//     const accountFive = accounts[5];
+//     const accountSix = accounts[6];
+//     const accountSeven = accounts[7];
+//     const accountEight = accounts[8];
+//     const accountNine = accounts[9];
+//     const accountTen = accounts[10];
+//     const accountEleven = accounts[11];
+//     const accountTwelwe = accounts[12];
     
-    // setup useful vars
+//     // setup useful vars
     
-    var IntercoinContractF;
-    var MockFactoryF;
-    var MockSimpleContractF;
-    var MockSimpleContractBadF;
+//     var IntercoinContractF;
+//     var MockFactoryF;
+//     var MockSimpleContractF;
+//     var MockSimpleContractBadF;
     
-    var snapId;
+//     var snapId;
     
-    var intercoinContract;
-        var factory;
-        var simpleContract;
+//     var intercoinContract;
+//         var factory;
+//         var simpleContract;
 
-    beforeEach("deploying", async() => {
+//     beforeEach("deploying", async() => {
 
-        // make snapshot before time manipulations
-        // snapId = await ethers.provider.send('evm_snapshot', []);
+//         // make snapshot before time manipulations
+//         // snapId = await ethers.provider.send('evm_snapshot', []);
 
-        IntercoinContractF = await ethers.getContractFactory("IntercoinContract");
-        MockFactoryF = await ethers.getContractFactory("MockFactory");
-        MockFactoryBadF = await ethers.getContractFactory("MockFactoryBad");
-        MockSimpleContractF = await ethers.getContractFactory("MockSimpleContract");
-        MockSimpleContractBadF = await ethers.getContractFactory("MockSimpleContractBad");
+//         IntercoinContractF = await ethers.getContractFactory("IntercoinContract");
+//         MockFactoryF = await ethers.getContractFactory("MockFactory");
+//         MockFactoryBadF = await ethers.getContractFactory("MockFactoryBad");
+//         MockSimpleContractF = await ethers.getContractFactory("MockSimpleContract");
+//         MockSimpleContractBadF = await ethers.getContractFactory("MockSimpleContractBad");
            
-        intercoinContract = await IntercoinContractF.connect(owner).deploy();
-        //console.log(`beforeEach("deploying"`);
-    });
+//         intercoinContract = await IntercoinContractF.connect(owner).deploy();
+//         //console.log(`beforeEach("deploying"`);
+//     });
 
     
-    afterEach("deploying", async() => { 
-        // restore snapshot
-        // await ethers.provider.send('evm_revert', [snapId]);
+//     afterEach("deploying", async() => { 
+//         // restore snapshot
+//         // await ethers.provider.send('evm_revert', [snapId]);
         
-    });
+//     });
 
     
     
-    it('test', async () => {
+//     it('test', async () => {
 
-        let mockFactory = await MockFactoryF.connect(owner).deploy();
+//         let mockFactory = await MockFactoryF.connect(owner).deploy();
 
-        let mockSimpleContractImpl = await MockSimpleContractF.connect(owner).deploy();
+//         let mockSimpleContractImpl = await MockSimpleContractF.connect(owner).deploy();
 
-        await mockFactory.connect(owner).init(mockSimpleContractImpl.address);
+//         await mockFactory.connect(owner).init(mockSimpleContractImpl.address);
 
-        await intercoinContract.registerFactory(mockFactory.address, version, name);
+//         await intercoinContract.registerFactory(mockFactory.address, version, name);
 
-        let tx = await mockFactory.connect(accountOne).produce();
+//         let tx = await mockFactory.connect(accountOne).produce();
 
-        const rc = await tx.wait(); // 0ms, as tx is already confirmed
-        const event = rc.events.find(event => event.event === 'InstanceCreated');
-        const [instance,] = event.args;
+//         const rc = await tx.wait(); // 0ms, as tx is already confirmed
+//         const event = rc.events.find(event => event.event === 'InstanceCreated');
+//         const [instance,] = event.args;
 
-        simpleContract = await ethers.getContractAt("MockSimpleContract",instance);   
+//         simpleContract = await ethers.getContractAt("MockSimpleContract",instance);   
 
-        await expect(simpleContract.setIntercoinAddress(ZERO_ADDRESS)).to.be.revertedWith("Address can not be empty");
-        await expect(simpleContract.setIntercoinAddress(accountTwo.address)).to.be.revertedWith("Already setup");
+//         await expect(simpleContract.setIntercoinAddress(ZERO_ADDRESS)).to.be.revertedWith("Address can not be empty");
+//         await expect(simpleContract.setIntercoinAddress(accountTwo.address)).to.be.revertedWith("Already setup");
 
-await expect(intercoinContract.connect(accountTwo).registerInstance(accountTwo.address)).to.be.revertedWith("Intercoin: caller is not the factory");
+// await expect(intercoinContract.connect(accountTwo).registerInstance(accountTwo.address)).to.be.revertedWith("Intercoin: caller is not the factory");
         
 
-        expect(await simpleContract.getSelfAddrRegisterAtIntercoin()).to.be.eq(true);
-        expect(await intercoinContract.checkInstance(simpleContract.address)).to.be.eq(true);
+//         expect(await simpleContract.getSelfAddrRegisterAtIntercoin()).to.be.eq(true);
+//         expect(await intercoinContract.checkInstance(simpleContract.address)).to.be.eq(true);
 
-        let factoriesInstances = await intercoinContract.viewFactoryInstances();
-        expect(factoriesInstances[0].version).to.be.eq(version);
-        expect(factoriesInstances[0].name).to.be.eq(name);
-        expect(factoriesInstances[0].exists).to.be.eq(true);
+//         let factoriesInstances = await intercoinContract.viewFactoryInstances();
+//         expect(factoriesInstances[0].version).to.be.eq(version);
+//         expect(factoriesInstances[0].name).to.be.eq(name);
+//         expect(factoriesInstances[0].exists).to.be.eq(true);
 
-/**/
+// /**/
 
-    });
-    describe("unexpected errors", function (){
+//     });
+//     describe("unexpected errors", function (){
 
-        it('when using bad instances', async () => {
+//         it('when using bad instances', async () => {
             
-            let mockFactory = await MockFactoryF.connect(owner).deploy();
+//             let mockFactory = await MockFactoryF.connect(owner).deploy();
 
-            let mockSimpleContractBadImpl = await MockSimpleContractBadF.connect(owner).deploy();
+//             let mockSimpleContractBadImpl = await MockSimpleContractBadF.connect(owner).deploy();
 
-            await mockFactory.connect(owner).init(mockSimpleContractBadImpl.address);
+//             await mockFactory.connect(owner).init(mockSimpleContractBadImpl.address);
 
-            await intercoinContract.registerFactory(mockFactory.address, version, name);
-
-            
-            await expect(
-                mockFactory.connect(accountOne).produce()
-            ).to.be.revertedWith("Interface IIntercoinTrait is not supported");
-
-        });
-
-        it('when using bad factory', async () => {
-            
-            let mockFactoryBad = await MockFactoryBadF.connect(owner).deploy();
-
-            let mockSimpleContractImpl = await MockSimpleContractF.connect(owner).deploy();
-
-            await mockFactoryBad.connect(owner).init(mockSimpleContractImpl.address);
-
-            await intercoinContract.registerFactory(mockFactoryBad.address, version, name);
+//             await intercoinContract.registerFactory(mockFactory.address, version, name);
 
             
-            await expect(
-                mockFactoryBad.connect(accountOne).produce()
-            ).to.be.revertedWith("Intercoin: instance already registered");
+//             await expect(
+//                 mockFactory.connect(accountOne).produce()
+//             ).to.be.revertedWith("Interface IIntercoinTrait is not supported");
 
-        });
+//         });
+
+//         it('when using bad factory', async () => {
+            
+//             let mockFactoryBad = await MockFactoryBadF.connect(owner).deploy();
+
+//             let mockSimpleContractImpl = await MockSimpleContractF.connect(owner).deploy();
+
+//             await mockFactoryBad.connect(owner).init(mockSimpleContractImpl.address);
+
+//             await intercoinContract.registerFactory(mockFactoryBad.address, version, name);
+
+            
+//             await expect(
+//                 mockFactoryBad.connect(accountOne).produce()
+//             ).to.be.revertedWith("Intercoin: instance already registered");
+
+//         });
     
-    });
+//     });
 }); 
 
 /*

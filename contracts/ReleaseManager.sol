@@ -2,13 +2,14 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/structs/EnumerableSetUpgradeable.sol";
 import "./interfaces/IReleaseManager.sol";
 /**
 *****************
 TEMPLATE CONTRACT
 *****************
 
-Although this code is available for viewing on GitHub and Etherscan, the general public is NOT given a license to freely deploy smart contracts based on this code, on any blockchains.
+Although this code is available for viewing on GitHub and here, the general public is NOT given a license to freely deploy smart contracts based on this code, on any blockchains.
 
 To prevent confusion and increase trust in the audited code bases of smart contracts we produce, we intend for there to be only ONE official Factory address on the blockchain producing the corresponding smart contracts, and we are going to point a blockchain domain name at it.
 
@@ -16,7 +17,7 @@ Copyright (c) Intercoin Inc. All rights reserved.
 
 ALLOWED USAGE.
 
-Provided they agree to all the conditions of this Agreement listed below, anyone is welcome to interact with the official Factory Contract at the address 0x1010109696d2494921b2255a9853410e82176f42 to produce smart contract instances, or to interact with instances produced in this manner by others.
+Provided they agree to all the conditions of this Agreement listed below, anyone is welcome to interact with the official Factory Contract at the this address to produce smart contract instances, or to interact with instances produced in this manner by others.
 
 Any user of software powered by this code MUST agree to the following, in order to use it. If you do not agree, refrain from using the software:
 
@@ -47,6 +48,7 @@ This Agreement does not grant you any right in any trademark or logo of Develope
 LINK REQUIREMENTS.
 
 Operators of any Websites and Apps which make use of smart contracts based on this code must conspicuously include the following phrase in their website, featuring a clickable link that takes users to intercoin.app:
+
 "Visit https://intercoin.app to launch your own NFTs, DAOs and other Web3 solutions."
 
 STAKING OR SPENDING REQUIREMENTS.
@@ -70,25 +72,39 @@ ARBITRATION
 All disputes related to this agreement shall be governed by and interpreted in accordance with the laws of New York, without regard to principles of conflict of laws. The parties to this agreement will submit all disputes arising under this agreement to arbitration in New York City, New York before a single arbitrator of the American Arbitration Association (“AAA”). The arbitrator shall be selected by application of the rules of the AAA, or by mutual agreement of the parties, except that such arbitrator shall be an attorney admitted to practice law New York. No party to this agreement will challenge the jurisdiction or venue provisions as provided in this section. No party to this agreement will challenge the jurisdiction or venue provisions as provided in this section.
 **/
 contract ReleaseManager is OwnableUpgradeable, IReleaseManager {
-    
+    using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
     struct InstanceInfo {
         address factoryAddress;
     }
 
     struct FactoryInfo {
-        uint8 factoryIndex; 
+        uint8 factoryIndex; //0 is factory does not exists
         uint16 releaseTag; 
         bytes24 factoryChangeNotes;
+    }
+
+    struct TagInfo{
+        bool exists;
+        bool finalized;
+        EnumerableSetUpgradeable.AddressSet list;
     }
     // factory that produce ReleaseManager;
     address public factory;
 
-    mapping(address => InstanceInfo) instances;
-    mapping(address => FactoryInfo) factories;
-
+    mapping(address => InstanceInfo) public instances;
+    mapping(address => FactoryInfo) public factories;
+    mapping(uint16 => TagInfo) internal releaseTags;
     
+    error FactoryOnly();
+    error IncorrectArraysLength();
+    error EmptyArray();
+    error UnknownTag(uint16 tag);
+    error ZeroFactoryIndex();
+
     modifier onlyFactory() {
-        require(factories[_msgSender()].factoryIndex != 0, "FACTORY_ONLY");
+        if (factories[_msgSender()].factoryIndex == 0) {
+            revert FactoryOnly();
+        }
         _;
     }
 
@@ -98,6 +114,7 @@ contract ReleaseManager is OwnableUpgradeable, IReleaseManager {
     function initialize(
     ) 
         external
+        override
         initializer 
     {
         factory = msg.sender;
@@ -107,10 +124,19 @@ contract ReleaseManager is OwnableUpgradeable, IReleaseManager {
     // which will accept an array of addresses in uint256 followed by an array of struct FactoryInfo. 
     // It will save the new FactoryInfo message under the addresses. 
     // It will also fire event NewRelease with the params passed, if possible.
-    function newRelease(address[] memory factoryAddresses, FactoryInfo[] memory factoryInfos) public onlyOwner 
-    {
-        require(factoryAddresses.length == factoryInfos.length, "INCORRECT_ARRAY_LENGTH");
+    function newRelease(address[] memory factoryAddresses, FactoryInfo[] memory factoryInfos) public onlyOwner {
+
+        if (factoryAddresses.length == 0) {
+            revert EmptyArray();
+        }
+        if (factoryAddresses.length != factoryInfos.length) {
+            revert IncorrectArraysLength();
+        }
+        
         for (uint256 i = 0; i < factoryAddresses.length; i++) {
+            if (factoryInfos[i].factoryIndex == 0) {
+                revert ZeroFactoryIndex();
+            }
             factories[factoryAddresses[i]] = FactoryInfo(
                 factoryInfos[i].factoryIndex,
                 factoryInfos[i].releaseTag,
@@ -119,13 +145,39 @@ contract ReleaseManager is OwnableUpgradeable, IReleaseManager {
         }
     }
 
+    function finalizeRelease(uint16 tag) public onlyOwner {
+        if (releaseTags[tag].exists == false) {
+            revert UnknownTag(tag);
+        }
+        releaseTags[tag].finalized = true;
+    }
+
+    function tags(uint16 tag) public view returns(bool exists, bool finalized, address[] memory list) {
+        exists = releaseTags[tag].exists;
+        finalized = releaseTags[tag].finalized;
+
+        uint256 listAmount = releaseTags[tag].list.length();
+        list = new address[](listAmount);
+
+        for (uint256 i = 0; i < listAmount; i++) {
+            list[i] = releaseTags[tag].list.at(i);
+        }
+    }
+
+
     // which adds to instances[address] which looks for msg.sender or _msgSender() is the factory address if it supports EIP2771 just in case. 
     // It can only be called by factories in factories mapping.
-    function registerInstance(address instanceAddress) external onlyFactory {
+    function registerInstance(address instanceAddress) external override onlyFactory {
         instances[instanceAddress] = InstanceInfo(_msgSender());
     }
 
-    
-    //factory points to the factory which produced it
+    function checkInstance(address instanceAddress) external view override returns(bool) {
+        return (instances[instanceAddress].factoryAddress == address(0) ? false : true);
+    }
+
+    function checkFactory(address factoryAddress) external view returns(bool) {
+        return (factories[factoryAddress].factoryIndex == 0 ? false : true);
+    }
+
 }
 
