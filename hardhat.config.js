@@ -18,6 +18,7 @@ const kovanURL = `https://eth-kovan.alchemyapi.io/v2/${process.env.ALCHEMY_KOVAN
 const goerliURL = `https://eth-goerli.alchemyapi.io/v2/${process.env.ALCHEMY_GOERLI}`
 const rinkebyURL = `https://rinkeby.infura.io/v3/${process.env.INFURA_ID_PROJECT}` //`https://eth-rinkeby.alchemyapi.io/v2/${process.env.ALCHEMY_RINKEBY}`
 const bscURL = 'https://bsc-dataseed.binance.org' //`https://eth-rinkeby.alchemyapi.io/v2/${process.env.ALCHEMY_RINKEBY}`
+const bsctestURL = 'https://data-seed-prebsc-1-s1.binance.org:8545';
 const mainnetURL = `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_MAINNET}`
 const maticURL = `https://polygon-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_MATIC}`
 
@@ -56,7 +57,14 @@ module.exports = {
     bsc: {
       url: bscURL,
       chainId: 56,
-      gasPrice: "auto",
+      //gasPrice: "auto",
+      accounts: [process.env.private_key],
+      saveDeployments: true
+    },
+    bsctest: {
+      url: bsctestURL,
+      chainId: 97,
+      //gasPrice: "auto",
       accounts: [process.env.private_key],
       saveDeployments: true
     },
@@ -86,9 +94,9 @@ module.exports = {
     currency: "USD"
   },
   etherscan: {
-    apiKey: process.env.MATIC_API_KEY
+    //apiKey: process.env.MATIC_API_KEY
     //apiKey: process.env.ETHERSCAN_API_KEY
-    //apiKey: process.env.BSCSCAN_API_KEY
+    apiKey: process.env.BSCSCAN_API_KEY
   },
   solidity: {
     compilers: [
