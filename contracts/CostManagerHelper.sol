@@ -13,7 +13,7 @@ abstract contract CostManagerHelper is Initializable {
     using AddressUpgradeable for address;
 
     address public costManager;
-    address internal factory;
+    address public deployer;
 
     /** 
     * @dev sets the costmanager token
@@ -23,11 +23,11 @@ abstract contract CostManagerHelper is Initializable {
         // require factory owner or operator
         // otherwise needed deployer(!!not contract owner) in cases if was deployed manually
         require (
-            (factory.isContract()) 
+            (deployer.isContract()) 
                 ?
-                    ICostManagerFactoryHelper(factory).canOverrideCostManager(msg.sender, address(this))
+                    ICostManagerFactoryHelper(deployer).canOverrideCostManager(msg.sender, address(this))
                 :
-                    factory == msg.sender
+                    deployer == msg.sender
             ,
             "cannot override"
         );
@@ -35,9 +35,9 @@ abstract contract CostManagerHelper is Initializable {
         _setCostManager(costManager_);
     }
 
-    function __CostManagerHelper_init(address factory_) internal onlyInitializing
+    function __CostManagerHelper_init(address deployer_) internal onlyInitializing
     {
-        factory = factory_;
+        deployer = deployer_;
     }
 
      /**
