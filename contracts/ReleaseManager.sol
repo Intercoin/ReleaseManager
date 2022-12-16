@@ -89,7 +89,7 @@ contract ReleaseManager is OwnableUpgradeable, IReleaseManager {
         EnumerableSetUpgradeable.AddressSet list;
     }
     // factory that produce ReleaseManager;
-    address public factory;
+    address public releaseManagerFactory;
 
     mapping(address => InstanceInfo) public instances;
     mapping(address => FactoryInfo) public factories;
@@ -100,6 +100,7 @@ contract ReleaseManager is OwnableUpgradeable, IReleaseManager {
     error EmptyArray();
     error UnknownTag(uint16 tag);
     error ZeroFactoryIndex();
+    error TagAlreadyFinalized(uint16 tag);
 
     modifier onlyFactory() {
         if (factories[_msgSender()].factoryIndex == 0) {
@@ -117,8 +118,9 @@ contract ReleaseManager is OwnableUpgradeable, IReleaseManager {
         override
         initializer 
     {
-        factory = msg.sender;
+       
         __Ownable_init();
+        releaseManagerFactory = _msgSender();
     }
 
     // which will accept an array of addresses in uint256 followed by an array of struct FactoryInfo. 
@@ -134,9 +136,7 @@ contract ReleaseManager is OwnableUpgradeable, IReleaseManager {
         }
         
         for (uint256 i = 0; i < factoryAddresses.length; i++) {
-            if (factoryInfos[i].factoryIndex == 0) {
-                revert ZeroFactoryIndex();
-            }
+            _validateTag(factoryInfos[i].releaseTag);
             factories[factoryAddresses[i]] = FactoryInfo(
                 factoryInfos[i].factoryIndex,
                 factoryInfos[i].releaseTag,
@@ -146,9 +146,7 @@ contract ReleaseManager is OwnableUpgradeable, IReleaseManager {
     }
 
     function finalizeRelease(uint16 tag) public onlyOwner {
-        if (releaseTags[tag].exists == false) {
-            revert UnknownTag(tag);
-        }
+        _validateTag(tag);
         releaseTags[tag].finalized = true;
     }
 
@@ -177,6 +175,15 @@ contract ReleaseManager is OwnableUpgradeable, IReleaseManager {
 
     function checkFactory(address factoryAddress) external view returns(bool) {
         return (factories[factoryAddress].factoryIndex == 0 ? false : true);
+    }
+
+    function _validateTag(uint16 tag) internal view {
+        if (releaseTags[tag].exists == false) {
+            revert UnknownTag(tag);
+        }
+        if (releaseTags[tag].finalized) {
+            revert TagAlreadyFinalized(tag);
+        }
     }
 
 }
