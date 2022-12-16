@@ -5,7 +5,7 @@
     "/build/contracts/*.json",
     "!/contracts/mocks/**/*"
   ],
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Smart contracts and code relating to the Intercoin ITR Token",
   "main": "index.js",
   "scripts": {
