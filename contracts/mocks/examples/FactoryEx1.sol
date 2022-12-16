@@ -5,18 +5,19 @@ import "@openzeppelin/contracts/proxy/Clones.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 import "../../CostManagerFactoryHelper.sol";
+import "../../ReleaseManagerHelper.sol";
 
-interface InstanceEx1 {
-    function initialize() external;
-}
+import "./InstanceEx1.sol";
 
-contract FactoryEx1 is Ownable, CostManagerFactoryHelper{
+contract FactoryEx1 is Ownable, CostManagerFactoryHelper, ReleaseManagerHelper {
     using Clones for address;
 
     address public immutable implementation;
     
     address[] public instances;
 
+    event InstanceCreated(address instance, uint256 instancesCount);
+    
     constructor(
         address impl
     )
@@ -33,5 +34,10 @@ contract FactoryEx1 is Ownable, CostManagerFactoryHelper{
         
         InstanceEx1(instance).initialize();
         Ownable(instance).transferOwnership(_msgSender());
+        
+        emit InstanceCreated(instance, instances.length);
+        
+        // register instance in release manager
+        registerInstance(instance);
     }
 }

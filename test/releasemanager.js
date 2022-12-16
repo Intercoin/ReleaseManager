@@ -22,7 +22,7 @@ const FRACTION = BigNumber.from('100000');
 
 chai.use(require('chai-bignumber')());
 
-describe("itrx", function () {
+describe("release manager", function () {
     const accounts = waffle.provider.getWallets();
 
     const owner = accounts[0];                     
@@ -30,7 +30,7 @@ describe("itrx", function () {
     const bob = accounts[2];
     const charlie = accounts[3];
     
-    const salt          = "0x00112233445566778899AABBCCDDEEFF00000000000000000000000000000000";
+    const salt    = "0x00112233445566778899AABBCCDDEEFF00000000000000000000000000000000";
     const salt2   = "0x00112233445566778899AABBCCDDEEFF00000000000000000000000000000001";
 
     // const tokenName = "Intercoin x";
@@ -105,5 +105,66 @@ describe("itrx", function () {
         await expect(releaseManagerFactory.connect(alice).produceDeterministic(salt2)).to.be.revertedWith('ERC1167: create2 failed');
         await expect(releaseManagerFactory.connect(bob).produceDeterministic(salt2)).to.be.revertedWith('ERC1167: create2 failed');
         
+    });
+
+    describe("release manager", function () {
+        var releaseManager;
+        beforeEach("deploying", async() => {
+            let tx = await releaseManagerFactory.connect(alice).produce();
+
+            const rc = await tx.wait(); // 0ms, as tx is already confirmed
+            const event = rc.events.find(event => event.event === 'InstanceProduced');
+            const [instance,] = event.args;
+
+            releaseManager = await ethers.getContractAt("ReleaseManager",instance);
+
+        });
+
+        it("imitation", async() => {
+            let factoryEx1F = await ethers.getContractFactory("FactoryEx1");
+            let instanceEx1F = await ethers.getContractFactory("InstanceEx1");
+
+            let instanceEx1Impl = await instanceEx1F.connect(owner).deploy();
+            let factoryEx1 = await factoryEx1F.connect(owner).deploy(instanceEx1Impl.address);
+            
+            await expect(factoryEx1.connect(owner).produce()).to.be.revertedWith("RegisterReleaseManagerFirst()");
+            
+            // registration our factory in release manager
+            await factoryEx1.connect(owner).registerReleaseManager(releaseManager.address);
+            
+            await expect(factoryEx1.connect(owner).produce()).to.be.revertedWith(`MakeReleaseWithFactory("${factoryEx1.address}")`);
+            // create new release
+            const factoryIndex = 1;
+            const releaseTag = 0x12;
+            const factoryChangeNotes = "0x73696d706c65206e6f746573000000000000000000000000"; //bytes24
+            await releaseManager.connect(alice).newRelease([factoryEx1.address], [[
+                factoryIndex,
+                releaseTag,
+                factoryChangeNotes
+            ]]);
+            // now we can produce
+            let tx = await factoryEx1.connect(owner).produce();
+            const rc = await tx.wait(); // 0ms, as tx is already confirmed
+            const event = rc.events.find(event => event.event === 'InstanceCreated');
+            const [instance,] = event.args;
+
+            let instanceEx1 = await ethers.getContractAt("InstanceEx1",instance);
+            
+            const InstanceInfo = await releaseManager.instances(instanceEx1.address);
+            const FactoryInfo = await releaseManager.factories(factoryEx1.address);
+            const TagInfo = await releaseManager.tags(releaseTag);
+            
+            //expect(InstanceInfo.factoryAddress).to.be.eq(factoryEx1.address);
+            expect(InstanceInfo).to.be.eq(factoryEx1.address);
+            
+            expect(FactoryInfo.factoryIndex).to.be.eq(factoryIndex);
+            expect(FactoryInfo.releaseTag).to.be.eq(releaseTag);
+            expect(FactoryInfo.factoryChangeNotes).to.be.eq(factoryChangeNotes);
+            
+            expect(TagInfo.exists).to.be.eq(true);
+            expect(TagInfo.finalized).to.be.eq(false);
+            expect(TagInfo.list[0]).to.be.eq(factoryEx1.address);
+            
+        });
     });
 });

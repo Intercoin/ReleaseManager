@@ -95,7 +95,8 @@ contract ReleaseManager is OwnableUpgradeable, IReleaseManager {
     mapping(address => FactoryInfo) public factories;
     mapping(uint16 => TagInfo) internal releaseTags;
     
-    error FactoryOnly();
+    //error FactoryOnly();
+    error MakeReleaseWithFactory(address factory);
     error IncorrectArraysLength();
     error EmptyArray();
     error UnknownTag(uint16 tag);
@@ -104,7 +105,8 @@ contract ReleaseManager is OwnableUpgradeable, IReleaseManager {
 
     modifier onlyFactory() {
         if (factories[_msgSender()].factoryIndex == 0) {
-            revert FactoryOnly();
+            //revert FactoryOnly();
+            revert MakeReleaseWithFactory(_msgSender());
         }
         _;
     }
@@ -136,7 +138,8 @@ contract ReleaseManager is OwnableUpgradeable, IReleaseManager {
         }
         
         for (uint256 i = 0; i < factoryAddresses.length; i++) {
-            _validateTag(factoryInfos[i].releaseTag);
+            _createTagAndLinkInstance(factoryInfos[i].releaseTag, factoryAddresses[i]);
+            _validateTag(factoryInfos[i].releaseTag, false);
             factories[factoryAddresses[i]] = FactoryInfo(
                 factoryInfos[i].factoryIndex,
                 factoryInfos[i].releaseTag,
@@ -146,7 +149,7 @@ contract ReleaseManager is OwnableUpgradeable, IReleaseManager {
     }
 
     function finalizeRelease(uint16 tag) public onlyOwner {
-        _validateTag(tag);
+        _validateTag(tag, true);
         releaseTags[tag].finalized = true;
     }
 
@@ -176,9 +179,16 @@ contract ReleaseManager is OwnableUpgradeable, IReleaseManager {
     function checkFactory(address factoryAddress) external view returns(bool) {
         return (factories[factoryAddress].factoryIndex == 0 ? false : true);
     }
-
-    function _validateTag(uint16 tag) internal view {
+    
+    function _createTagAndLinkInstance(uint16 tag, address addr) internal {
         if (releaseTags[tag].exists == false) {
+            releaseTags[tag].exists = true;
+        }
+        releaseTags[tag].list.add(addr);
+        
+    }
+    function _validateTag(uint16 tag, bool checkExists) internal view {
+        if (checkExists && releaseTags[tag].exists == false) {
             revert UnknownTag(tag);
         }
         if (releaseTags[tag].finalized) {
