@@ -95,16 +95,15 @@ contract ReleaseManagerFactory is Ownable {
     }
 
     function produce() public {
-        
         address instance = address(implementation).clone();
-
         _produce(instance);
-
-        IReleaseManager(instance).initialize();
-        Ownable(instance).transferOwnership(_msgSender());
-        
     }
 
+    function produceDeterministic(bytes32 salt) public {
+        address instance = address(implementation).cloneDeterministic(salt);
+        _produce(instance);
+    }
+    
     ////////////////////////////////////////////////////////////////////////
     // internal section ////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////
@@ -115,6 +114,9 @@ contract ReleaseManagerFactory is Ownable {
         }
         instances.push(instance);
         emit InstanceProduced(instance, instances.length);
+
+        IReleaseManager(instance).initialize();
+        Ownable(instance).transferOwnership(_msgSender());
     }
 
 }
