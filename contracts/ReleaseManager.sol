@@ -95,6 +95,9 @@ contract ReleaseManager is OwnableUpgradeable, IReleaseManager {
     mapping(address => FactoryInfo) public factories;
     mapping(uint16 => TagInfo) internal releaseTags;
     
+    mapping(address => string) public notes;
+    mapping(address => string) public warnings;
+    
     //error FactoryOnly();
     error MakeReleaseWithFactory(address factory);
     error IncorrectArraysLength();
@@ -164,6 +167,15 @@ contract ReleaseManager is OwnableUpgradeable, IReleaseManager {
             list[i] = releaseTags[tag].list.at(i);
         }
     }
+    
+    function setNotes(address factoryAddress, string memory url) public onlyOwner {
+        notes[factoryAddress] = url;
+    }
+    
+    function setWarnings(address factoryAddress, string memory url)  public onlyOwner {
+        warnings[factoryAddress] = url;
+    }
+    
 
 
     // which adds to instances[address] which looks for msg.sender or _msgSender() is the factory address if it supports EIP2771 just in case. 
