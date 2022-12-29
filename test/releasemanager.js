@@ -125,12 +125,7 @@ describe("release manager", function () {
             let instanceEx1F = await ethers.getContractFactory("InstanceEx1");
 
             let instanceEx1Impl = await instanceEx1F.connect(owner).deploy();
-            let factoryEx1 = await factoryEx1F.connect(owner).deploy(instanceEx1Impl.address);
-            
-            await expect(factoryEx1.connect(owner).produce()).to.be.revertedWith("RegisterReleaseManagerFirst()");
-            
-            // registration our factory in release manager
-            await factoryEx1.connect(owner).registerReleaseManager(releaseManager.address);
+            let factoryEx1 = await factoryEx1F.connect(owner).deploy(instanceEx1Impl.address, ZERO_ADDRESS, releaseManager.address);
             
             await expect(factoryEx1.connect(owner).produce()).to.be.revertedWith(`MakeReleaseWithFactory("${factoryEx1.address}")`);
             // create new release

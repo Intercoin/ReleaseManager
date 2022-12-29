@@ -1,35 +1,41 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-// import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "./interfaces/IReleaseManager.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 
-contract ReleaseManagerHelper is Ownable{
+abstract contract ReleaseManagerHelper {
     using Address for address;
-    address public releaseManager;
+    address private _releaseManager;
 
-    error RegisterReleaseManagerFirst();
-    error ReleaseManagerIsNoneContract(address addr);
-    error ReleaseManagerAlreadySetup(address addr);
-    
-    function registerInstance(address stateContractAddress) internal {
-        if (releaseManager == address(0)) {
-            revert RegisterReleaseManagerFirst();
-        }
-        IReleaseManager(releaseManager).registerInstance(stateContractAddress);
-    }
-    
-    function registerReleaseManager(address releaseManager_) public onlyOwner {
-        if (releaseManager_.isContract() == false) {
-            revert ReleaseManagerIsNoneContract(releaseManager_);
-        }
-        if (releaseManager != address(0)) {
-            revert ReleaseManagerAlreadySetup(releaseManager_);
+    error ReleaseManagerInvalid(address addr);
+
+    /**
+    * @notice need to register release manager when factory(CommunityCoinFactory, IncomeContractFactory, etc) deployed
+    */
+    constructor(address releaseManagerAddr) {
+        if (
+            releaseManagerAddr.isContract() == false ||
+            releaseManagerAddr == address(0)
+        ) {
+            revert ReleaseManagerInvalid(releaseManagerAddr);
         }
 
-        releaseManager = releaseManager_;
+        _releaseManager = releaseManagerAddr;
     }
 
+    /**
+    * @notice view release manager address that was regsted when factory deployed
+    */
+    function releaseManager() public view returns(address) {
+        return _releaseManager;
+    }
+
+    /**
+    * @param instanceAddress address that was produced by factory need to be registered in ReleaseManager. Usually such method should be called after produce/produceDeterministic
+    */
+    function registerInstance(address instanceAddress) internal {
+        IReleaseManager(_releaseManager).registerInstance(instanceAddress);
+    }
+    
 }

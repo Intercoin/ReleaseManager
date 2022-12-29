@@ -175,7 +175,6 @@ contract ReleaseManager is OwnableUpgradeable, IReleaseManager {
     function setWarnings(address factoryAddress, string memory url)  public onlyOwner {
         warnings[factoryAddress] = url;
     }
-    
 
 
     // which adds to instances[address] which looks for msg.sender or _msgSender() is the factory address if it supports EIP2771 just in case. 
@@ -188,7 +187,7 @@ contract ReleaseManager is OwnableUpgradeable, IReleaseManager {
         return (instances[instanceAddress].factoryAddress == address(0) ? false : true);
     }
 
-    function checkFactory(address factoryAddress) external view returns(bool) {
+    function checkFactory(address factoryAddress) external view override returns(bool) {
         return (factories[factoryAddress].factoryIndex == 0 ? false : true);
     }
     

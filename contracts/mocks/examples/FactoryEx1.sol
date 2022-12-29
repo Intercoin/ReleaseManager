@@ -19,9 +19,12 @@ contract FactoryEx1 is Ownable, CostManagerFactoryHelper, ReleaseManagerHelper {
     event InstanceCreated(address instance, uint256 instancesCount);
     
     constructor(
-        address impl
+        address impl,
+        address costManagerAddress,
+        address releaseManagerAddress
     )
-        CostManagerFactoryHelper(address(0))
+        CostManagerFactoryHelper(costManagerAddress)
+        ReleaseManagerHelper(releaseManagerAddress)
     {
         implementation = impl;
     }
