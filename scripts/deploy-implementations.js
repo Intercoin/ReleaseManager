@@ -56,8 +56,8 @@ async function main() {
 	// 	//gasPrice: ethers.utils.parseUnits('50', 'gwei'), 
 	// 	gasLimit: 10e6
 	// };
-
-	console.log("Account balance:", (await deployer.getBalance()).toString());
+    const deployerBalanceBefore = await deployer.getBalance();
+	console.log("Account balance:", (deployerBalanceBefore).toString());
 
     const ReleaseManagerF = await ethers.getContractFactory("ReleaseManager");
         
@@ -67,7 +67,15 @@ async function main() {
 	console.log("  ReleaseManager deployed at:       ", implementationReleaseManager.address);
 
 	data_object.implementationReleaseManager = implementationReleaseManager.address;
-	
+    
+    const deployerBalanceAfter = await deployer.getBalance();
+	console.log("Spent:", ethers.utils.formatEther(deployerBalanceBefore.sub(deployerBalanceAfter)));
+    console.log("gasPrice:", ethers.utils.formatUnits((await network.provider.send("eth_gasPrice")), "gwei")," gwei");
+    //console.log("getGasPrice:", await hre.network.getGasPrice());
+    //console.log("eth_blockNumber:", await network.provider.send("eth_blockNumber"));
+    
+    
+    
 	//---
 	const ts_updated = Date.now();
     data_object.time_updated = ts_updated;

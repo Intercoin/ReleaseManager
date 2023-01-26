@@ -57,8 +57,9 @@ async function main() {
 		..._params,
 		options
 	]
-
-	console.log("Account balance:", (await deployer.getBalance()).toString());
+    
+    const deployerBalanceBefore = await deployer.getBalance();
+	console.log("Account balance:", (deployerBalanceBefore).toString());
 
 	const ReleaseManagerF = await ethers.getContractFactory("ReleaseManagerFactory");
 
@@ -66,6 +67,10 @@ async function main() {
 	
 	console.log("Factory deployed at:", this.factory.address);
 	console.log("with params:", [..._params]);
+    
+    const deployerBalanceAfter = await deployer.getBalance();
+	console.log("Spent:", ethers.utils.formatEther(deployerBalanceBefore.sub(deployerBalanceAfter)));
+    console.log("gasPrice:", ethers.utils.formatUnits((await network.provider.send("eth_gasPrice")), "gwei")," gwei");
 }
 
 main()
