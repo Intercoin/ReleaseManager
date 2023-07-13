@@ -22,6 +22,8 @@ const bsctestURL = 'https://data-seed-prebsc-1-s1.binance.org:8545';
 const mainnetURL = `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_MAINNET}`
 const maticURL = `https://polygon-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_MATIC}`
 const mumbaiURL = 'https://matic-mumbai.chainstacklabs.com';
+const arbitrumURL = `https://endpoints.omniatech.io/v1/arbitrum/one/public`;
+const avalancheURL = `https://endpoints.omniatech.io/v1/avax/mainnet/public`;
 
 module.exports = {
   networks: {
@@ -59,7 +61,11 @@ module.exports = {
       url: bscURL,
       chainId: 56,
       //gasPrice: "auto",
-      accounts: [process.env.private_key],
+      accounts: [
+        process.env.private_key,
+        process.env.private_key_auxiliary,
+        process.env.private_key_vanity
+      ],
       saveDeployments: true
     },
     bsctest: {
@@ -73,7 +79,11 @@ module.exports = {
       url: maticURL,
       chainId: 137,
       gasPrice: "auto",
-      accounts: [process.env.private_key],
+      accounts: [
+        process.env.private_key,
+        process.env.private_key_auxiliary,
+        process.env.private_key_vanity
+      ],
       saveDeployments: true
     },
     mumbai: {
@@ -88,6 +98,28 @@ module.exports = {
       chainId: 1,
       gasPrice: 20000000000,
       accounts: [process.env.private_key],
+      saveDeployments: true
+    },
+    arbitrum: {
+      url: arbitrumURL,
+      chainId: 42161,
+      gasPrice: "auto",
+      accounts: [
+        process.env.private_key,
+        process.env.private_key_auxiliary,
+        process.env.private_key_vanity
+      ],
+      saveDeployments: true
+    },
+    avalanche: {
+      url: avalancheURL,
+      chainId: 43114,
+      gasPrice: "auto",
+      accounts: [
+        process.env.private_key,
+        process.env.private_key_auxiliary,
+        process.env.private_key_vanity
+      ],
       saveDeployments: true
     }
   },
