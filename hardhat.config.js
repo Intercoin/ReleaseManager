@@ -22,7 +22,8 @@ const bsctestURL = 'https://data-seed-prebsc-1-s1.binance.org:8545';
 const mainnetURL = `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_MAINNET}`
 const maticURL = `https://polygon-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_MATIC}`
 const mumbaiURL = 'https://matic-mumbai.chainstacklabs.com';
-const arbitrumURL = `https://endpoints.omniatech.io/v1/arbitrum/one/public`;
+//const arbitrumURL = `https://endpoints.omniatech.io/v1/arbitrum/one/public`;
+const arbitrumURL = `https://arbitrum-one.publicnode.com`;
 const avalancheURL = `https://endpoints.omniatech.io/v1/avax/mainnet/public`;
 
 module.exports = {
@@ -100,7 +101,7 @@ module.exports = {
       accounts: [process.env.private_key],
       saveDeployments: true
     },
-    arbitrum: {
+    arbitrumOne: {
       url: arbitrumURL,
       chainId: 42161,
       gasPrice: "auto",
@@ -134,9 +135,17 @@ module.exports = {
     currency: "USD"
   },
   etherscan: {
-    apiKey: process.env.MATIC_API_KEY
+    //apiKey: process.env.MATIC_API_KEY
     //apiKey: process.env.ETHERSCAN_API_KEY
     //apiKey: process.env.BSCSCAN_API_KEY
+    apiKey: {
+      polygonMumbai: process.env.MATIC_API_KEY,
+      polygon: process.env.MATIC_API_KEY,
+      bsc: process.env.BSCSCAN_API_KEY,
+      mainnet: process.env.ETHERSCAN_API_KEY,
+      arbitrumOne: process.env.ARBITRUMONE_API_KEY,
+      avalanche: process.env.AVALANCHE_API_KEY
+    }
   },
   solidity: {
     compilers: [

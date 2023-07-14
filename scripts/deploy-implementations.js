@@ -67,7 +67,7 @@ async function main() {
 	console.log("Account balance:", (deployerBalanceBefore).toString());
 
     const ReleaseManagerF = await ethers.getContractFactory("ReleaseManager");
-        
+
 	let implementationReleaseManager    = await ReleaseManagerF.connect(deployer).deploy();
 	
 	console.log("Implementations:");
