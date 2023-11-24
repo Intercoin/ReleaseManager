@@ -55,7 +55,7 @@ describe("release manager", function () {
         const rc = await tx.wait(); // 0ms, as tx is already confirmed
         const event = rc.events.find(event => event.event === 'InstanceProduced');
         const [instance,] = event.args;
-        console.log("instance=", instance);
+        //console.log("instance=", instance);
         //simpleContract = await ethers.getContractAt("MockSimpleContract",instance);   
     });
 
@@ -127,7 +127,7 @@ describe("release manager", function () {
             let instanceEx1Impl = await instanceEx1F.connect(owner).deploy();
             let factoryEx1 = await factoryEx1F.connect(owner).deploy(instanceEx1Impl.address, ZERO_ADDRESS, releaseManager.address);
             
-            await expect(factoryEx1.connect(owner).produce()).to.be.revertedWith(`MakeReleaseWithFactory("${factoryEx1.address}")`);
+            await expect(factoryEx1.connect(owner).produce()).to.be.revertedWith('MakeReleaseWithFactory').withArgs(factoryEx1.address);
             // create new release
             const factoryIndex = 1;
             const releaseTag = 0x12;
