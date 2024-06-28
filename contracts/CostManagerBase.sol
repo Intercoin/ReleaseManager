@@ -32,9 +32,10 @@ abstract contract CostManagerBase is Initializable {
         _setCostManager(costManager_);
     }
 
-    function __CostManagerHelper_init(address deployer_) internal onlyInitializing
+    function __CostManagerHelper_init(address deployer_, address costManager_) internal onlyInitializing
     {
         deployer = deployer_;
+        _setCostManager(costManager_);
     }
 
      /**

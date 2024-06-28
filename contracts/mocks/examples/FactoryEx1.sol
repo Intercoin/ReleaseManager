@@ -13,6 +13,7 @@ contract FactoryEx1 is Ownable, CostManagerFactoryHelper, ReleaseManagerHelper {
     using Clones for address;
 
     address public immutable implementation;
+    address public costManagerAddress;
     
     address[] public instances;
 
@@ -20,10 +21,10 @@ contract FactoryEx1 is Ownable, CostManagerFactoryHelper, ReleaseManagerHelper {
     
     constructor(
         address impl,
-        address costManagerAddress,
+        address costManagerAddress_,
         address releaseManagerAddress
     )
-        CostManagerFactoryHelper(costManagerAddress)
+        CostManagerFactoryHelper(costManagerAddress_)
         ReleaseManagerHelper(releaseManagerAddress)
     {
         implementation = impl;
@@ -35,7 +36,8 @@ contract FactoryEx1 is Ownable, CostManagerFactoryHelper, ReleaseManagerHelper {
 
         instances.push(instance);
         
-        InstanceEx1(instance).initialize();
+        InstanceEx1(instance).initialize(costManager);
+
         Ownable(instance).transferOwnership(_msgSender());
         
         emit InstanceCreated(instance, instances.length);
@@ -43,4 +45,5 @@ contract FactoryEx1 is Ownable, CostManagerFactoryHelper, ReleaseManagerHelper {
         // register instance in release manager
         registerInstance(instance);
     }
+
 }
