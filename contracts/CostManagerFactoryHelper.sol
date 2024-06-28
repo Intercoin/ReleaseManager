@@ -50,7 +50,7 @@ abstract contract CostManagerFactoryHelper is ICostManagerFactoryHelper, Ownable
         view
         returns (bool) 
     {
-        return (account == owner() && !_renouncedOverrideCostManager.contains(instance));
+        return (account == owner() && _renouncedOverrideCostManager.contains(instance));
     }
 
     function _setCostManager(address costManager_) internal {
