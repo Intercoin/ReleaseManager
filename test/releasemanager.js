@@ -334,7 +334,7 @@ describe("release manager", function () {
             await costManagerEx1.doRevert(true);
             await expect(instanceEx1WithCostManager.method1(info, param1, param2)).revertedWith('SomeError');
             //cant override
-            await expect(instanceEx1WithCostManager.overrideCostManager(ZERO_ADDRESS)).revertedWith('cannot override');
+            await expect(instanceEx1WithCostManager.overrideCostManager(ZERO_ADDRESS)).revertedWithCustomError(instanceEx1WithCostManager, 'CanNotOverride');
             
         });
 
@@ -353,13 +353,13 @@ describe("release manager", function () {
             await expect(instanceEx1WithCostManager.method1(info, param1, param2)).revertedWith('SomeError');
 
             //cant override
-            await expect(instanceEx1WithCostManager.setCostManager(ZERO_ADDRESS)).revertedWith('Override required by factory');
+            await expect(instanceEx1WithCostManager.setCostManager(ZERO_ADDRESS)).revertedWithCustomError(instanceEx1WithCostManager, 'OverrideRequired');
             //renounce overrride for instanceEx1WithCostManager
             await factoryEx1.connect(owner).renounceOverrideCostManager(instanceEx1WithCostManager.target);
 
             await expect(
                 factoryEx1.connect(owner).renounceOverrideCostManager(instanceEx1WithCostManager.target)
-            ).revertedWith('Already overrode');
+            ).revertedWithCustomError(instanceEx1WithCostManager, 'AlreadyOverrode');
         });
 
         it("shouldnt override CostManager address until factory approve", async() => {
@@ -377,7 +377,7 @@ describe("release manager", function () {
             await expect(instanceEx1WithCostManager.method1(info, param1, param2)).revertedWith('SomeError');
 
             //cant override
-            await expect(instanceEx1WithCostManager.setCostManager(ZERO_ADDRESS)).revertedWith('Override required by factory');
+            await expect(instanceEx1WithCostManager.setCostManager(ZERO_ADDRESS)).revertedWithCustomError(instanceEx1WithCostManager, 'OverrideRequired');
             //renounce overrride for instanceEx1WithCostManager
             await factoryEx1.connect(owner).renounceOverrideCostManager(instanceEx1WithCostManager.target);
             // now instance'sowner can override(removing) CostManager
@@ -406,7 +406,7 @@ describe("release manager", function () {
             // is possible to override ? - no
             expect( await factoryEx1.canOverrideCostManager(instanceEx1WithCostManager.target)).to.be.false;
             //prove it. cant override
-            await expect(instanceEx1WithCostManager.setCostManager(ZERO_ADDRESS)).revertedWith('Override required by factory');
+            await expect(instanceEx1WithCostManager.setCostManager(ZERO_ADDRESS)).revertedWithCustomError(instanceEx1WithCostManager, 'OverrideRequired');
             //renounce overrride for instanceEx1WithCostManager
             await factoryEx1.connect(owner).renounceOverrideCostManager(instanceEx1WithCostManager.target);
             // override is possible
@@ -440,7 +440,7 @@ describe("release manager", function () {
 
             const instanceEx1WithBadCostManager = await ethers.getContractAt("InstanceEx1",instance);
 
-            await expect(instanceEx1WithBadCostManager.method1(1, 2, 3)).revertedWith('unknown error');
+            await expect(instanceEx1WithBadCostManager.method1(1, 2, 3)).revertedWithCustomError(instanceEx1WithBadCostManager, 'UnknownError');
 
         })
 
