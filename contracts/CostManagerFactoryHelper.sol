@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 import "./interfaces/ICostManagerFactoryHelper.sol";
+import "./CostManagerBase.sol";
 
 // used for factory
 abstract contract CostManagerFactoryHelper is ICostManagerFactoryHelper, Ownable {
@@ -32,16 +33,17 @@ abstract contract CostManagerFactoryHelper is ICostManagerFactoryHelper, Ownable
     */
     function renounceOverrideCostManager(address instance) public onlyOwner {
         _renouncedOverrideCostManager.add(instance);
+
+        CostManagerBase(instance).overrideCostManager(address(0));
+
         emit RenouncedOverrideCostManagerForInstance(instance);
     }
     
     /** 
     * @dev instance can call this to find out whether a given address can set the cost manager contract
-    * @param account the address to test
     * @param instance the instance to test
     */
     function canOverrideCostManager(
-        address account, 
         address instance
     ) 
         external 
@@ -50,7 +52,7 @@ abstract contract CostManagerFactoryHelper is ICostManagerFactoryHelper, Ownable
         view
         returns (bool) 
     {
-        return (account == owner() && _renouncedOverrideCostManager.contains(instance));
+        return (_renouncedOverrideCostManager.contains(instance));
     }
 
     function _setCostManager(address costManager_) internal {

@@ -9,33 +9,45 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 abstract contract CostManagerBase is Initializable {
     using AddressUpgradeable for address;
 
-    address public costManager;
-    address public deployer;
-
+    address private costManager;
+    address private deployer;
+    bool private overrode;
     /** 
-    * @dev sets the costmanager token
+    * @dev sets the costmanager token. calling only by factory owner
     * @param costManager_ new address of costmanager token, or 0
     */
     function overrideCostManager(address costManager_) external {
         // require factory owner or operator
-        // otherwise needed deployer(!!not contract owner) in cases if was deployed manually
+        // otherwise needed deployer(!!not contract owner)
+
         require (
-            (deployer.isContract()) 
-                ?
-                    ICostManagerFactoryHelper(deployer).canOverrideCostManager(_sender(), address(this))
-                :
-                    deployer == _sender()
-            ,
+            !overrode,
+            "Already overrode"
+        );
+
+        require (
+            deployer == _sender() && 
+            ICostManagerFactoryHelper(deployer).canOverrideCostManager(address(this)),
             "cannot override"
         );
         
+        overrode = true;
         _setCostManager(costManager_);
+    }
+
+    /** 
+    * @dev viewer the costmanager token
+    * @return address of costmanager token
+    */
+    function getCostManager() public view returns(address) {
+        return costManager;
     }
 
     function __CostManagerHelper_init(address deployer_, address costManager_) internal onlyInitializing
     {
         deployer = deployer_;
-        _setCostManager(costManager_);
+        costManager = costManager_;
+        overrode = false;
     }
 
      /**
@@ -61,6 +73,10 @@ abstract contract CostManagerBase is Initializable {
     }
     
     function _setCostManager(address costManager_) internal {
+        require (
+            overrode,
+            "Override required by factory"
+        );
         costManager = costManager_;
     }
     
