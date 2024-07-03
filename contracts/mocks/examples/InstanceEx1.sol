@@ -18,4 +18,9 @@ contract InstanceEx1 is CostManagerHelper, OwnableUpgradeable {
         // uint256 param2 = 3;
         _accountForOperation(info, param1, param2);
     }
+
+    function setCostManager(address costManager) public {
+        _setCostManager(costManager);
+    }
+
 }
