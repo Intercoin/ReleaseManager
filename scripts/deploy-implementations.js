@@ -63,21 +63,24 @@ async function main() {
 	// 	//gasPrice: ethers.utils.parseUnits('50', 'gwei'), 
 	// 	gasLimit: 10e6
 	// };
-    const deployerBalanceBefore = await deployer.getBalance();
+
+    const deployerBalanceBefore = await ethers.provider.getBalance(deployer.address);
 	console.log("Account balance:", (deployerBalanceBefore).toString());
 
     const ReleaseManagerF = await ethers.getContractFactory("ReleaseManager");
 
 	let implementationReleaseManager    = await ReleaseManagerF.connect(deployer).deploy();
 	
-	console.log("Implementations:");
-	console.log("  ReleaseManager deployed at:       ", implementationReleaseManager.address);
+    await implementationReleaseManager.waitForDeployment();
 
-	data_object.implementationReleaseManager = implementationReleaseManager.address;
+	console.log("Implementations:");
+	console.log("  ReleaseManager deployed at:       ", implementationReleaseManager.target);
+
+	data_object.implementationReleaseManager = implementationReleaseManager.target;
     
-    const deployerBalanceAfter = await deployer.getBalance();
-	console.log("Spent:", ethers.utils.formatEther(deployerBalanceBefore.sub(deployerBalanceAfter)));
-    console.log("gasPrice:", ethers.utils.formatUnits((await network.provider.send("eth_gasPrice")), "gwei")," gwei");
+    const deployerBalanceAfter = await ethers.provider.getBalance(deployer.address);
+	console.log("Spent:", ethers.formatEther(deployerBalanceBefore - deployerBalanceAfter));
+    console.log("gasPrice:", ethers.formatUnits((await network.provider.send("eth_gasPrice")), "gwei")," gwei");
     //console.log("getGasPrice:", await hre.network.getGasPrice());
     //console.log("eth_blockNumber:", await network.provider.send("eth_blockNumber"));
     
@@ -91,6 +94,14 @@ async function main() {
     let data_to_write = JSON.stringify(data_object_root, null, 2);
 	console.log(data_to_write);
     await write_data(data_to_write);
+
+    const networkName = hre.network.name;
+    if (networkName == 'hardhat') {
+        console.log("skipping verifying for  'hardhat' network");
+    } else {
+        console.log("Starting verifying:");
+        await hre.run("verify:verify", {address: implementationReleaseManager.target, constructorArguments: []});
+    }
 }
 
 main()

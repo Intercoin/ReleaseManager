@@ -65,19 +65,35 @@ async function main() {
 		options
 	]
     
-    const deployerBalanceBefore = await deployer.getBalance();
+    const deployerBalanceBefore = await ethers.provider.getBalance(deployer.address)
 	console.log("Account balance:", (deployerBalanceBefore).toString());
 
 	const ReleaseManagerF = await ethers.getContractFactory("ReleaseManagerFactory");
 
 	this.factory = await ReleaseManagerF.connect(deployer).deploy(...params);
-	
-	console.log("Factory deployed at:", this.factory.address);
+
+	await this.factory.waitForDeployment();
+
+	console.log("Factory deployed at:", this.factory.target);
 	console.log("with params:", [..._params]);
     
-    const deployerBalanceAfter = await deployer.getBalance();
-	console.log("Spent:", ethers.utils.formatEther(deployerBalanceBefore.sub(deployerBalanceAfter)));
-    console.log("gasPrice:", ethers.utils.formatUnits((await network.provider.send("eth_gasPrice")), "gwei")," gwei");
+    const deployerBalanceAfter = await ethers.provider.getBalance(deployer.address)
+	console.log("Spent:", ethers.formatEther(deployerBalanceBefore - deployerBalanceAfter));
+    console.log("gasPrice:", ethers.formatUnits((await network.provider.send("eth_gasPrice")), "gwei")," gwei");
+
+	const networkName = hre.network.name;
+    if (networkName == 'hardhat') {
+        console.log("skipping verifying for  'hardhat' network");
+    } else {
+        console.log("Starting verifying:");
+
+        await hre.run("verify:verify", {
+			address: this.factory.target,
+			constructorArguments: _params
+		});
+    }
+
+	
 }
 
 main()

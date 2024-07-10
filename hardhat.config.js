@@ -18,7 +18,8 @@ module.exports = {
     hardhat: {
       allowUnlimitedContractSize: false,
       gas: "auto",
-      gasLimit: 22000000,
+      //gasLimit: 22000000,
+      chainId: 1,
       forking: {
         url: mainnetURL,
         //blockNumber: "latest"
@@ -84,8 +85,12 @@ module.exports = {
     mainnet: {
       url: mainnetURL,
       chainId: 1,
-      gasPrice: 20000000000,
-      accounts: [process.env.private_key],
+      //gasPrice: 20000000000,
+      accounts: [
+        process.env.private_key,
+        process.env.private_key_auxiliary,
+        process.env.private_key_vanity
+      ],
       saveDeployments: true
     },
     arbitrumOne: {
