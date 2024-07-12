@@ -42,8 +42,8 @@ abstract contract CostManagerBase is Initializable {
     }
 
     /** 
-    * @dev viewer the costmanager token
-    * @return address of costmanager token
+    * @dev viewer the costmanager address
+    * @return address of costmanager address
     */
     function getCostManager() public view returns(address) {
         return costManager;
@@ -84,6 +84,15 @@ abstract contract CostManagerBase is Initializable {
         }
         
         costManager = costManager_;
+    }
+
+    
+    /** 
+    * @dev viewer the deployer address
+    * @return address of deployer address
+    */
+    function getDeployer() internal view returns(address) {
+        return deployer;
     }
     
     function _sender() internal virtual returns(address);
