@@ -13,6 +13,9 @@ const mumbaiURL = 'https://matic-mumbai.chainstacklabs.com';
 const arbitrumURL = `https://arbitrum-one.publicnode.com`;
 const avalancheURL = `https://endpoints.omniatech.io/v1/avax/mainnet/public`;
 
+const baseURL = 'https://mainnet.base.org';
+const optimismURL = 'https://optimism.llamarpc.com';
+
 module.exports = {
   networks: {
     hardhat: {
@@ -64,7 +67,7 @@ module.exports = {
       accounts: [process.env.private_key],
       saveDeployments: true
     },
-    matic: {
+    polygon: {
       url: maticURL,
       chainId: 137,
       gasPrice: "auto",
@@ -114,6 +117,26 @@ module.exports = {
         process.env.private_key_vanity
       ],
       saveDeployments: true
+    },
+    base: {
+      url: baseURL,
+      chainId: 8453,
+      accounts: [
+        process.env.private_key,
+        process.env.private_key_auxiliary,
+        process.env.private_key_vanity
+      ],
+      saveDeployments: true
+    },
+    optimisticEthereum: {
+      url: optimismURL,
+      chainId: 10,
+      accounts: [
+        process.env.private_key,
+        process.env.private_key_auxiliary,
+        process.env.private_key_vanity
+      ],
+      saveDeployments: true
     }
   },
   // docgen: {
@@ -136,7 +159,9 @@ module.exports = {
       bsc: process.env.BSCSCAN_API_KEY,
       mainnet: process.env.ETHERSCAN_API_KEY,
       arbitrumOne: process.env.ARBITRUMONE_API_KEY,
-      avalanche: process.env.AVALANCHE_API_KEY
+      avalanche: process.env.AVALANCHE_API_KEY,
+      optimisticEthereum: process.env.OPTIMISM_API_KEY,
+      base: process.env.BASE_API_KEY
     }
   },
   solidity: {
